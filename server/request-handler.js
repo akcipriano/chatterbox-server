@@ -27,6 +27,13 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+// 1) should send back parsable stringified JSON
+// 2) should send back an object
+// 3) should send an object containing a `results` array
+// 4) should accept POST requests to /classes/messages
+// 5) should respond with messages that were previously posted
+// 6) Should 404 when asked for a nonexistent endpoint
+
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -47,6 +54,10 @@ exports.requestHandler = function(request, response) {
   // The outgoing status.
   var statusCode = 200;
 
+  if (request.method === "POST") {
+    statusCode = 201;
+  }
+
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
@@ -54,7 +65,7 @@ exports.requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'text/plain'; // application/json
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -67,7 +78,11 @@ exports.requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+
+  // 1) should send back parsable stringified JSON
+  // 2) should send back an object
+  // 3) should send an object containing a `results` array
+  response.end(JSON.stringify({results:[]}));
 };
 
 
