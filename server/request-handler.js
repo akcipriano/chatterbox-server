@@ -34,6 +34,10 @@ var defaultCorsHeaders = {
 // 5) should respond with messages that were previously posted
 // 6) Should 404 when asked for a nonexistent endpoint
 
+var messages = {
+  results: []
+};
+
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -49,14 +53,40 @@ exports.requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  console.log('\nServing request type ' + request.method + ' for url ' + request.url);
+
+  var statusCode = 404;
 
   // The outgoing status.
-  var statusCode = 200;
+  if (request.url === '/classes/messages') {
+    if (request.method === 'GET') {
+      statusCode = 200;
+      console.log(JSON.stringify(messages));
+      // response.write(JSON.stringify(messages));
+    }
+    if (request.method === 'POST') {
+      statusCode = 201;
+      request.on('data', function(chunk) {
+        console.log('Received body data:');
+        console.log(chunk.toString());
+        messages.results.unshift(JSON.parse(chunk));
+      });
+    }
 
-  if (request.method === "POST") {
-    statusCode = 201;
+    if (request.method === 'OPTIONS') {
+      statusCode = 200;
+    }
   }
+  /*
+  {
+    results: []
+  }
+  */
+
+  // response of previous messages - GET
+  // response.write() is a method to construct body of response? https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/#sending-response-body
+
+
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -65,7 +95,7 @@ exports.requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain'; // application/json
+  headers['Content-Type'] = 'application/json; charset=utf-8'; // application/json
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -82,7 +112,7 @@ exports.requestHandler = function(request, response) {
   // 1) should send back parsable stringified JSON
   // 2) should send back an object
   // 3) should send an object containing a `results` array
-  response.end(JSON.stringify({results:[]}));
+  response.end(JSON.stringify(messages));
 };
 
 
