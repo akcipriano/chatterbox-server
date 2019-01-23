@@ -58,7 +58,10 @@ exports.requestHandler = function(request, response) {
   var statusCode = 404;
 
   // The outgoing status.
-  if (request.url === '/classes/messages') {
+
+  var requestUrlArray = request.url.split('?');
+
+  if (requestUrlArray[0] === '/classes/messages') {
     if (request.method === 'GET') {
       statusCode = 200;
       console.log(JSON.stringify(messages));
