@@ -79,6 +79,10 @@ exports.requestHandler = function(request, response) {
     if (request.method === 'OPTIONS') {
       statusCode = 200;
     }
+
+    if (request.method === 'DELETE') {
+      statusCode = 403;
+    }
   }
   /*
   {

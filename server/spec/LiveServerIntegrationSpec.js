@@ -73,7 +73,44 @@ describe('server', function() {
     });
   });
 
-  // 403 for DELETE / PUT?
-  // message order is correct
+  it('Should return 403 for DELETE requests to /classes/messages', function(done) {
+    var requestParams = {method: 'DELETE',
+      uri: 'http://127.0.0.1:3000/classes/messages'
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(403);
+      done();
+    });
+  });
+
+  it('should keep messages in order', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        text: 'Do my bidding!'}
+    };
+
+    var requestParamsTwo = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Bono',
+        text: 'Never!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      request(requestParamsTwo, function(error, response, body) {
+        request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+          var messages = JSON.parse(body).results;
+          expect(messages[0].username).to.equal('Bono');
+          expect(messages[0].text).to.equal('Never!');
+          expect(messages[1].username).to.equal('Jono');
+          expect(messages[1].text).to.equal('Do my bidding!');
+          done();
+        });
+      });
+    });
+  });
 
 });
